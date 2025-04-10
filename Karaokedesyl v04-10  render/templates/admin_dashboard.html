@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Karaoke V1</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        table { width: 80%; margin: 20px auto; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        button { margin: 10px; padding: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    
+    <h1>Admin Dashboard</h1>
+    <h2>Total des chansons importées : {{ song_count }}</h2>
+    
+    <!-- Messages flash juste au-dessus de la playlist -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Ici commence l'affichage de la playlist -->
+
+    <form action="/admin/import" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Importer un fichier CSV</button>
+    </form>
+    
+    <h2>Playlist en cours</h2>
+    {% if playlist %}
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Titre</th>
+                <th>Artiste</th>
+            </tr>
+            {% for song in playlist %}
+            <tr>
+                <td>{{ loop.index }}</td>  <!-- ✅ Numéro d'ordre -->
+                <td>{{ song[1] }}</td>
+                <td>{{ song[2] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <a href="/admin/export"><button>Exporter la Playlist</button></a>
+        <a href="/admin/reset"><button>Réinitialiser la Playlist</button></a>
+    {% else %}
+        <p><strong>Playlist vide.</strong></p>
+    {% endif %}
+
+    <br>
+    <a href="/"><button>Retour à l'Accueil</button></a>
+
+    <h2>Liste des chansons</h2>
+    {% if songs %}
+        <table>
+            <tr>
+                <th>Titre</th>
+                <th>Artiste</th>
+                <th>Langue</th>
+                <th>Genre</th>
+                <th>Période</th>
+            </tr>
+            {% for song in songs %}
+            <tr>
+                <td>{{ song[1] }}</td>
+                <td>{{ song[2] }}</td>
+                <td>{{ song[3] }}</td>
+                <td>{{ song[4] }}</td>
+                <td>{{ song[5] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Aucune chanson disponible.</p>
+    {% endif %}
+
+
+
+</body>
+</html>
