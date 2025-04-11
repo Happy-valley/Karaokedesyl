@@ -264,7 +264,8 @@ def export_playlist():
 
     # Envoi sur Dropbox
     import dropbox
-    dbx = dropbox.Dropbox('your_access_token')
+    import os
+    dbx = dropbox.Dropbox(os.environ.get("DROPBOX_TOKEN"))
     with open(local_file_path, 'rb') as f:
         dbx.files_upload(f.read(), dropbox_file_path, mode=dropbox.files.WriteMode.overwrite)
 
