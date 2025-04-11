@@ -239,36 +239,28 @@ def test_flash():
     flash("Test message", "warning")
     return redirect(url_for('choose_song'))
 
+
 @app.route('/admin/export')
 def export_playlist():
-    # Connexion à la base de données
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     cursor.execute("SELECT title, artist FROM Playlist")
     playlist = cursor.fetchall()
     conn.close()
 
-    # Création du nom de fichier avec horodatage
+# Ajout de l'heure dans le nom du fichier
     filename = f"Playlist_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.lst"
-    local_file_path = os.path.join(EXPORT_DIR, filename)
-    dropbox_file_path = f"/songbook/{filename}"
-
-    # S'assurer que le dossier 'export' existe
-    os.makedirs(EXPORT_DIR, exist_ok=True)
-
-    # Écriture locale du fichier
-    with open(local_file_path, 'w', encoding='utf-8') as f:
+    filepath = os.path.join(EXPORT_DIR, filename)
+    
+    with open(filepath, 'w', encoding='utf-8') as f:
         f.write(f"Playlist {datetime.now().strftime('%Y-%m-%d')}\n")
         for title, artist in playlist:
             f.write(f"{title} - {artist}\n")
 
-    # Envoi sur Dropbox
-    import dropbox
-    dbx = dropbox.Dropbox('your_access_token')
-    with open(local_file_path, 'rb') as f:
-        dbx.files_upload(f.read(), dropbox_file_path, mode=dropbox.files.WriteMode.overwrite)
-
+    os.replace(filepath, os.path.join(DROPBOX_DIR, filename))
+    
     flash("Playlist exportée avec succès ! Vous pouvez la retrouver dans Dropbox.", "success")
+    
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/reset')
