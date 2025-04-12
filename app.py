@@ -208,7 +208,7 @@ def add_to_playlist(song_id):
     playlist_count = cursor.fetchone()[0]
 
     # Si la playlist est pleine
-    if playlist_count >= 7:
+    if playlist_count >= 30:
         flash("Playlist is full! You can only add up to 30 songs.", "warning")
 
         # Recharge les données pour l'affichage
