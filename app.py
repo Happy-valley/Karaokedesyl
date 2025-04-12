@@ -3,6 +3,7 @@ Karaokedesyl - Version 1.0
 A Flask-based Karaoke Song Selection and Playlist Management System.
 """
 
+import dropbox
 import os
 import sqlite3
 import csv
@@ -263,12 +264,19 @@ def export_playlist():
             f.write(f"{title} - {artist}\n")
 
     # Envoi sur Dropbox
-    import dropbox
-    dbx = dropbox.Dropbox(os.environ.get("DROPBOX_TOKEN"))
-    with open(local_file_path, 'rb') as f:
-        dbx.files_upload(f.read(), dropbox_file_path, mode=dropbox.files.WriteMode.overwrite)
+    dropbox_token = os.environ.get("DROPBOX_TOKEN")
+    if not dropbox_token:
+        flash("Erreur : DROPBOX_TOKEN manquant. Vérifiez la configuration.", "danger")
+        return redirect(url_for('admin_dashboard'))
 
-    flash("Playlist exportée avec succès ! Vous pouvez la retrouver dans Dropbox.", "success")
+    try:
+        dbx = dropbox.Dropbox(dropbox_token)
+        with open(local_file_path, 'rb') as f:
+            dbx.files_upload(f.read(), dropbox_file_path, mode=dropbox.files.WriteMode.overwrite)
+        flash("Playlist exportée avec succès ! Vous pouvez la retrouver dans Dropbox.", "success")
+    except Exception as e:
+        flash(f"Erreur lors de l'export Dropbox : {str(e)}", "danger")
+
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/reset')
