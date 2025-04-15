@@ -55,18 +55,13 @@ def home():
 
 @app.route('/home')
 def home_page():
-    return render_template('home.html')
+    file_path = os.path.abspath(__file__)
+    last_modified = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
     
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
-    app_directory = os.path.basename(os.path.dirname(os.path.abspath(__file__)))  # Récupère le nom du dossier
-
-    if request.method == 'POST':
-        if request.form.get('password') == ADMIN_PASSWORD:
-            session['admin'] = True
-            return redirect(url_for('admin_dashboard'))
-
-    return render_template('admin.html', app_directory=app_directory)
+    print(f"✅ /home loaded from: {file_path}")
+    print(f"🕒 Last modified: {last_modified}")
+    
+    return render_template('home.html')
 
 @app.route('/admin/dashboard')
 def admin_dashboard():

@@ -44,6 +44,12 @@
         td a:hover {
             background-color: #45a049;
         }
+
+        .footer-info {
+            font-size: 0.85em;
+            color: #777;
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
@@ -68,5 +74,10 @@
             </tr>
         </tbody>
     </table>
+
+    <div class="footer-info">
+        <p><strong>app.py path:</strong> {{ file_path }}</p>
+        <p><strong>Last modified:</strong> {{ last_modified }}</p>
+    </div>
 </body>
 </html>
