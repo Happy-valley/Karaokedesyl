@@ -169,7 +169,7 @@
                 <td>{{ song[4] }}</td>
                 <td>{{ song[5] }}</td>
                 <td>
-                    <a href="{{ url_for('add_to_playlist', song_id=song[0], sort_by=sort_by, sort_order=sort_order) }}">
+                    <a href="{{ url_for('add_to_playlist', song_id=song[0], sort_by=sort_by, sort_order=sort_order, language=selected_language, period=selected_period) }}">
                         ➕ Add
                     </a>
                 </td>
