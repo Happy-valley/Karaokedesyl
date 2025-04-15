@@ -216,23 +216,40 @@ def current_playlist():
         
 @app.route('/add_to_playlist/<int:song_id>')
 def add_to_playlist(song_id):
+    # ✅ Récupération des paramètres depuis l'URL
     sort_by = request.args.get('sort_by', default='title')
     sort_order = request.args.get('sort_order', default='asc')
+    language = request.args.get('language', default='all')
+    period = request.args.get('period', default='all')
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
-    # Vérifie le nombre de chansons dans la playlist
+    # ✅ Vérifie le nombre de chansons dans la playlist
     cursor.execute("SELECT COUNT(*) FROM Playlist")
     playlist_count = cursor.fetchone()[0]
 
-    # Si la playlist est pleine
+    # 🚫 Si la playlist est pleine
     if playlist_count >= 30:
         flash("Playlist is full! You can only add up to 30 songs.", "warning")
 
-        # Recharge les données pour l'affichage
-        cursor.execute(f"SELECT * FROM Allsongs ORDER BY {sort_by} {sort_order}")
+        # ✅ Recharge les chansons avec tri et filtres
+        query = "SELECT * FROM Allsongs WHERE 1=1"
+        params = []
+
+        if language != 'all':
+            query += " AND language = ?"
+            params.append(language)
+
+        if period != 'all':
+            query += " AND period = ?"
+            params.append(period)
+
+        query += f" ORDER BY {sort_by} {sort_order}"
+        cursor.execute(query, params)
         songs = cursor.fetchall()
+
+        # ✅ Recharge la playlist
         cursor.execute("SELECT * FROM Playlist")
         playlist = cursor.fetchall()
         conn.close()
@@ -243,9 +260,11 @@ def add_to_playlist(song_id):
                                table_title="Available Songs",
                                show_buttons=True,
                                sort_by=sort_by,
-                               sort_order=sort_order)
+                               sort_order=sort_order,
+                               selected_language=language,
+                               selected_period=period)
 
-    # Sinon, ajoute la chanson
+    # ✅ Sinon, ajoute la chanson
     cursor.execute("SELECT title, artist FROM Allsongs WHERE id = ?", (song_id,))
     song = cursor.fetchone()
 
@@ -255,7 +274,12 @@ def add_to_playlist(song_id):
 
     conn.close()
 
-    return redirect(url_for('choose_song', sort_by=sort_by, sort_order=sort_order))
+    # ✅ Redirection avec filtres conservés
+    return redirect(url_for('choose_song',
+                            sort_by=sort_by,
+                            sort_order=sort_order,
+                            language=language,
+                            period=period))
 
 @app.route('/test_flash')
 def test_flash():
