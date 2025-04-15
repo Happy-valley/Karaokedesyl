@@ -61,6 +61,17 @@ def home_page():
     print(f"🕒 Last modified: {last_modified}")
     return render_template('home.html', app_py_path=app_py_path, last_modified=last_modified)
 
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    app_directory = os.path.basename(os.path.dirname(os.path.abspath(__file__)))  # Récupère le nom du dossier
+
+    if request.method == 'POST':
+        if request.form.get('password') == ADMIN_PASSWORD:
+            session['admin'] = True
+            return redirect(url_for('admin_dashboard'))
+
+    return render_template('admin.html', app_directory=app_directory)
+
 @app.route('/admin/dashboard')
 def admin_dashboard():
     if not session.get('admin'):
