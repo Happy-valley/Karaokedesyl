@@ -33,8 +33,8 @@
 
         /* Formulaire de filtres */
         .filter-form {
-            margin-top: 30px;  /* Espace avant le formulaire */
-            font-size: 18px;   /* Taille de la police des filtres */
+            margin-top: 30px;
+            font-size: 18px;
             font-weight: bold;
             display: flex;
             flex-wrap: wrap;
@@ -43,56 +43,41 @@
 
         .filter-form label {
             margin-right: 10px;
-            font-size: 20px;   /* Taille de la police du label */
+            font-size: 20px;
             font-weight: bold;
         }
 
         .filter-form select {
             padding: 8px;
-            font-size: 18px;   /* Taille de la police dans les menus déroulants */
+            font-size: 18px;
             font-weight: bold;
             margin-right: 15px;
         }
 
-        /* Titres de section */
         h2 {
             margin-top: 40px;
-            font-size: 24px;      /* Taille du titre plus grande */
-            font-weight: bold;    /* Met en gras les titres */
-            color: #333;          /* Couleur légèrement foncée */
-        }
-
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: left;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
         }
 
         th {
             background-color: #f2f2f2;
-            font-size: 18px;       /* Titre des colonnes plus gros */
+            font-size: 18px;
             font-weight: bold;
-            color: #555;           /* Couleur du texte dans les en-têtes */
+            color: #555;
         }
 
         td {
-            font-size: 16px;       /* Taille des cellules */
+            font-size: 16px;
         }
 
-        /* Liens des boutons "Add" */
         a {
             display: inline-block;
             padding: 8px 15px;
-            background-color: #4CAF50; /* Bouton vert */
+            background-color: #4CAF50;
             color: white;
-            font-size: 16px;           /* Plus gros */
+            font-size: 16px;
             text-align: center;
             border-radius: 5px;
             text-decoration: none;
@@ -100,12 +85,11 @@
         }
 
         a:hover {
-            background-color: #45a049; /* Couleur du bouton au survol */
+            background-color: #45a049;
         }
 
-        /* Ajout d'un espace après la playlist */
         .playlist-table {
-            margin-bottom: 40px;  /* Espacement après la playlist */
+            margin-bottom: 40px;
         }
     </style>
 </head>
@@ -184,7 +168,11 @@
                 <td>{{ song[3] }}</td>
                 <td>{{ song[4] }}</td>
                 <td>{{ song[5] }}</td>
-                <td><a href="{{ url_for('add_to_playlist', song_id=song[0]) }}">➕ Add</a></td>
+                <td>
+                    <a href="{{ url_for('add_to_playlist', song_id=song[0], sort_by=sort_by, sort_order=sort_order) }}">
+                        ➕ Add
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

@@ -145,6 +145,8 @@ def get_songs():
 def choose_song():
     selected_language = request.args.get('language', 'all')
     selected_period = request.args.get('period', 'all')
+    sort_by = request.args.get('sort_by', 'artist')  # par défaut : artist
+    sort_order = request.args.get('sort_order', 'asc')  # par défaut : croissant
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
@@ -154,9 +156,9 @@ def choose_song():
     languages = sorted([row[0] for row in cursor.fetchall()])
 
     cursor.execute("SELECT DISTINCT period FROM Allsongs")
-    periods = sorted([row[0] for row in cursor.fetchall()])  # ✅ tri alphabétique ici
+    periods = sorted([row[0] for row in cursor.fetchall()])
 
-    # Appliquer les filtres
+    # Construire la requête avec filtres
     query = "SELECT * FROM Allsongs WHERE 1=1"
     params = []
 
@@ -168,12 +170,20 @@ def choose_song():
         query += " AND period = ?"
         params.append(selected_period)
 
-    # Ajouter le tri par artiste puis titre
-    query += " ORDER BY artist, title"
+    # Sécuriser les colonnes et l’ordre de tri (anti injection SQL)
+    valid_columns = ['title', 'artist', 'language', 'genre', 'period']
+    if sort_by not in valid_columns:
+        sort_by = 'artist'
+    if sort_order not in ['asc', 'desc']:
+        sort_order = 'asc'
 
+    query += f" ORDER BY {sort_by} {sort_order.upper()}"
+
+    # Exécution de la requête
     cursor.execute(query, params)
     songs = cursor.fetchall()
 
+    # Récupération de la playlist
     cursor.execute("SELECT * FROM Playlist")
     playlist = cursor.fetchall()
 
@@ -184,6 +194,8 @@ def choose_song():
                            playlist=playlist,
                            selected_language=selected_language,
                            selected_period=selected_period,
+                           sort_by=sort_by,
+                           sort_order=sort_order,
                            languages=languages,
                            periods=periods,
                            table_title="Available Songs",
@@ -200,6 +212,9 @@ def current_playlist():
         
 @app.route('/add_to_playlist/<int:song_id>')
 def add_to_playlist(song_id):
+    sort_by = request.args.get('sort_by', default='title')
+    sort_order = request.args.get('sort_order', default='asc')
+
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
@@ -212,7 +227,7 @@ def add_to_playlist(song_id):
         flash("Playlist is full! You can only add up to 30 songs.", "warning")
 
         # Recharge les données pour l'affichage
-        cursor.execute("SELECT * FROM Allsongs")
+        cursor.execute(f"SELECT * FROM Allsongs ORDER BY {sort_by} {sort_order}")
         songs = cursor.fetchall()
         cursor.execute("SELECT * FROM Playlist")
         playlist = cursor.fetchall()
@@ -222,7 +237,9 @@ def add_to_playlist(song_id):
                                songs=songs,
                                playlist=playlist,
                                table_title="Available Songs",
-                               show_buttons=True)
+                               show_buttons=True,
+                               sort_by=sort_by,
+                               sort_order=sort_order)
 
     # Sinon, ajoute la chanson
     cursor.execute("SELECT title, artist FROM Allsongs WHERE id = ?", (song_id,))
@@ -233,7 +250,8 @@ def add_to_playlist(song_id):
         conn.commit()
 
     conn.close()
-    return redirect(url_for('choose_song'))
+
+    return redirect(url_for('choose_song', sort_by=sort_by, sort_order=sort_order))
 
 @app.route('/test_flash')
 def test_flash():
