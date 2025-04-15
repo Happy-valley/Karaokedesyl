@@ -276,12 +276,16 @@ def export_playlist():
     local_file_path = os.path.join(EXPORT_DIR, filename)
     dropbox_file_path = f"/songbook/{filename}"
 
+    # Extraire le nom de fichier sans l'extension .lst
+    filename_without_extension = filename.replace('.lst', '')
+
     # S'assurer que le dossier 'export' existe
     os.makedirs(EXPORT_DIR, exist_ok=True)
 
     # Écriture locale du fichier
     with open(local_file_path, 'w', encoding='utf-8') as f:
-        f.write(f"Playlist {datetime.now().strftime('%Y-%m-%d')}\n")
+        # Ajouter la première ligne avec le nom du fichier sans l'extension
+        f.write(f"{filename_without_extension}\n")
         for title, artist in playlist:
             f.write(f"{title} - {artist}\n")
 
