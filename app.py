@@ -56,7 +56,7 @@ def home():
 @app.route('/home')
 def home_page():
     app_py_path = os.path.abspath(__file__)
-    last_modified = datetime.datetime.fromtimestamp(os.path.getmtime(app_py_path)).strftime("%Y-%m-%d %H:%M:%S")
+    last_modified = datetime.fromtimestamp(os.path.getmtime(app_py_path)).strftime("%Y-%m-%d %H:%M:%S")
     print(f"✅ /home loaded from: {app_py_path}")
     print(f"🕒 Last modified: {last_modified}")
     return render_template('home.html', app_py_path=app_py_path, last_modified=last_modified)
