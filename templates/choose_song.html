@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Choose a Song V3</title>
+    <title>Choose a Song V4</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
@@ -177,6 +177,9 @@
         </tbody>
     </table>
 
+    <!-- Chansons -->
+    <h2>Available Songs</h2>
+
     <!-- Filtres -->
     <form id="filterForm" method="get" action="{{ url_for('choose_song') }}" class="filter-form">
         <label for="language">Language:
@@ -198,8 +201,7 @@
         </label>
     </form>
 
-    <!-- Chansons -->
-    <h2>Available Songs</h2>
+    <!-- Tableau des chansons disponibles -->
     <table>
         <thead>
             <tr>
