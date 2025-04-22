@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Choose a Song V5</title>
+    <title>Choose a Song V4</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
@@ -41,12 +41,13 @@
             background-color: #1976D2;
         }
 
+        /* Filtres en ligne ou en colonne selon taille d'écran */
         .filter-form {
             margin-top: 20px;
             display: flex;
+            flex-wrap: wrap;
             gap: 15px;
             align-items: center;
-            justify-content: center;
         }
 
         .filter-form label {
@@ -60,23 +61,6 @@
             padding: 6px 10px;
             font-size: 16px;
             font-weight: bold;
-            width: 180px;
-            margin-top: 5px;
-        }
-
-        .filter-form button {
-            background-color: #2196F3;
-            color: white;
-            padding: 6px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .filter-form button:hover {
-            background-color: #1976D2;
         }
 
         table {
@@ -145,6 +129,7 @@
                 font-weight: bold;
             }
 
+            /* Étiquettes personnalisées pour chaque colonne */
             td:nth-of-type(1)::before { content: "Title"; }
             td:nth-of-type(2)::before { content: "Artist"; }
             td:nth-of-type(3)::before { content: "Language"; }
@@ -158,7 +143,7 @@
 <body>
 
     <!-- Bouton retour accueil -->
-    <a href="/" class="home-button" aria-label="Retour à l'accueil">🏠 Retour à l'accueil</a>
+    <a href="/" class="home-button">🏠 Retour à l'accueil</a>
 
     <!-- Message flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -198,7 +183,7 @@
     <!-- Filtres -->
     <form id="filterForm" method="get" action="{{ url_for('choose_song') }}" class="filter-form">
         <label for="language">Language:
-            <select name="language" id="language">
+            <select name="language" id="language" onchange="document.getElementById('filterForm').submit();">
                 <option value="all" {% if selected_language == 'all' %}selected{% endif %}>All</option>
                 {% for lang in languages %}
                     <option value="{{ lang }}" {% if selected_language == lang %}selected{% endif %}>{{ lang }}</option>
@@ -207,15 +192,13 @@
         </label>
 
         <label for="period">Period:
-            <select name="period" id="period">
+            <select name="period" id="period" onchange="document.getElementById('filterForm').submit();">
                 <option value="all" {% if selected_period == 'all' %}selected{% endif %}>All</option>
                 {% for per in periods %}
                     <option value="{{ per }}" {% if selected_period == per %}selected{% endif %}>{{ per }}</option>
                 {% endfor %}
             </select>
         </label>
-
-        <button type="submit">Filter</button>
     </form>
 
     <!-- Tableau des chansons disponibles -->
@@ -244,8 +227,7 @@
                                         sort_by=sort_by,
                                         sort_order=sort_order,
                                         language=selected_language,
-                                        period=selected_period) }}"
-                       aria-label="Ajouter {{ song[1] }} à la playlist">
+                                        period=selected_period) }}">
                         ➕ Add
                     </a>
                 </td>
