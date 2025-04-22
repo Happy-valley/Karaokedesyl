@@ -231,6 +231,7 @@ def add_to_playlist(song_id):
     sort_order = request.args.get('sort_order', default='asc')
     language = request.args.get('language', default='all')
     period = request.args.get('period', default='all')
+    genre = request.args.get('genre', default='all')
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
@@ -284,8 +285,8 @@ def add_to_playlist(song_id):
 
     conn.close()
 
-# ✅ Redirection avec tous les filtres conservés
-return redirect(url_for('choose_song',
+    # ✅ Redirection avec tous les filtres conservés
+    return redirect(url_for('choose_song',
                         sort_by=sort_by,
                         sort_order=sort_order,
                         language=language,
