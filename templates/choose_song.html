@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Choose a Song V2</title>
+    <title>Choose a Song V3</title>
     <meta charset="UTF-8">
     <style>
         body {
@@ -91,10 +91,31 @@
         .playlist-table {
             margin-bottom: 40px;
         }
+
+        .home-button {
+            display: inline-block;
+            margin: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .home-button:hover {
+            background-color: #1976D2;
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- ✅ Bouton retour à l'accueil -->
+    <a href="/" class="home-button">🏠 Retour à l'accueil</a>
 
     <!-- ✅ Messages flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
