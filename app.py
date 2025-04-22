@@ -1,5 +1,5 @@
 """
-Karaokedesyl - Version 1.0
+Karaokedesyl - Version 2.0
 A Flask-based Karaoke Song Selection and Playlist Management System.
 """
 
@@ -328,6 +328,29 @@ def export_playlist():
         flash(f"Erreur lors de l'export Dropbox : {str(e)}", "danger")
 
     return redirect(url_for('admin_dashboard'))
+    
+@app.route('/admin/export_local_csv')
+def export_local_csv():
+    # Connexion à la base de données
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT title, artist FROM Playlist")
+    playlist = cursor.fetchall()
+    conn.close()
+
+    # Création du fichier temporaire
+    filename = f"Playlist_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.csv"
+    filepath = os.path.join(EXPORT_DIR, filename)
+    
+    # Écriture du fichier
+    with open(filepath, 'w', encoding='utf-8', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Title", "Artist"])  # En-têtes
+        for title, artist in playlist:
+            writer.writerow([title, artist])
+    
+    # Téléchargement direct
+    return send_file(filepath, as_attachment=True)
 
 @app.route('/admin/reset')
 def reset_playlist():
