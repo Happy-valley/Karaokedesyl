@@ -214,7 +214,6 @@ def choose_song():
                            genres=genres,  # Passer la liste des genres au template
                            table_title="Available Songs",
                            show_buttons=True)
-
                            
 @app.route('/current_playlist')
 def current_playlist():
