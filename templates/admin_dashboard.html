@@ -10,6 +10,9 @@
         th, td { border: 1px solid black; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
         button { margin: 10px; padding: 10px; cursor: pointer; }
+        .alert { margin: 10px auto; padding: 10px; width: 60%; border: 1px solid #ccc; border-radius: 5px; }
+        .alert-success { background-color: #d4edda; color: #155724; }
+        .alert-error { background-color: #f8d7da; color: #721c24; }
     </style>
 </head>
 <body>
@@ -28,8 +31,6 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Ici commence l'affichage de la playlist -->
-
     <form action="/admin/import" method="post" enctype="multipart/form-data">
         <input type="file" name="file" required>
         <button type="submit">Importer un fichier CSV</button>
@@ -45,14 +46,23 @@
             </tr>
             {% for song in playlist %}
             <tr>
-                <td>{{ loop.index }}</td>  <!-- ✅ Numéro d'ordre -->
+                <td>{{ loop.index }}</td>
                 <td>{{ song[1] }}</td>
                 <td>{{ song[2] }}</td>
             </tr>
             {% endfor %}
         </table>
+
+        <!-- Boutons d'exportation -->
         <a href="/admin/export"><button>Exporter la Playlist (Dropbox)</button></a>
-        <a href="/admin/export_local_lst"><button>📥 Export Local (.lst)</button></a>
+
+        <form action="{{ url_for('export_local_lst') }}" method="get" style="display:inline;">
+            <button type="submit">📥 Exporter vers iCloud Drive (.lst)</button>
+        </form>
+        <p style="font-size: 0.9em; color: gray;">
+            Ouvrez ensuite votre iCloud Drive et glissez-y le fichier téléchargé manuellement.
+        </p>
+
         <a href="/admin/reset"><button>Réinitialiser la Playlist</button></a>
     {% else %}
         <p><strong>Playlist vide.</strong></p>
@@ -84,8 +94,6 @@
     {% else %}
         <p>Aucune chanson disponible.</p>
     {% endif %}
-
-
 
 </body>
 </html>

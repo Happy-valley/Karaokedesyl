@@ -328,9 +328,9 @@ def export_playlist():
         flash(f"Erreur lors de l'export Dropbox : {str(e)}", "danger")
 
     return redirect(url_for('admin_dashboard'))
-    
-@app.route('/admin/export_local_csv')
-def export_local_csv():
+
+@app.route('/admin/export_local_lst')
+def export_local_lst():
     # Connexion à la base de données
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
@@ -339,18 +339,17 @@ def export_local_csv():
     conn.close()
 
     # Création du fichier temporaire
-    filename = f"Playlist_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.csv"
-    filepath = os.path.join(EXPORT_DIR, filename)
-    
+    filename = f"Playlist_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.lst"
+    local_file_path = os.path.join(EXPORT_DIR, filename)
+
     # Écriture du fichier
-    with open(filepath, 'w', encoding='utf-8', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["Title", "Artist"])  # En-têtes
+    with open(local_file_path, 'w', encoding='utf-8') as f:
+        f.write(filename.replace('.lst', '') + '\n')  # Titre
         for title, artist in playlist:
-            writer.writerow([title, artist])
-    
+            f.write(f"{title} - {artist}\n")
+
     # Téléchargement direct
-    return send_file(filepath, as_attachment=True)
+    return send_file(local_file_path, as_attachment=True)
 
 @app.route('/admin/reset')
 def reset_playlist():
