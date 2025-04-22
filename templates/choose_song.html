@@ -215,6 +215,16 @@
             </select>
         </label>
 
+        <!-- Nouveau filtre Genre -->
+        <label for="genre">Genre:
+            <select name="genre" id="genre">
+                <option value="all" {% if selected_genre == 'all' %}selected{% endif %}>All</option>
+                {% for genre in genres %}
+                    <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
         <button type="submit">Filter</button>
     </form>
 
@@ -244,7 +254,8 @@
                                         sort_by=sort_by,
                                         sort_order=sort_order,
                                         language=selected_language,
-                                        period=selected_period) }}"
+                                        period=selected_period,
+                                        genre=selected_genre) }}"
                        aria-label="Ajouter {{ song[1] }} à la playlist">
                         ➕ Add
                     </a>

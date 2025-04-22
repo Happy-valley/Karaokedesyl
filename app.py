@@ -1,5 +1,5 @@
 """
-Karaokedesyl - Version 2.0
+Karaokedesyl - Version 3.0
 A Flask-based Karaoke Song Selection and Playlist Management System.
 """
 
@@ -149,18 +149,22 @@ def get_songs():
 def choose_song():
     selected_language = request.args.get('language', 'all')
     selected_period = request.args.get('period', 'all')
-    sort_by = request.args.get('sort_by', 'artist')  # par défaut : artist
-    sort_order = request.args.get('sort_order', 'asc')  # par défaut : croissant
+    selected_genre = request.args.get('genre', 'all')  # Nouveau filtre genre
+    sort_by = request.args.get('sort_by', 'artist')  # Par défaut : artist
+    sort_order = request.args.get('sort_order', 'asc')  # Par défaut : croissant
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
-    # Récupérer toutes les langues et périodes uniques
+    # Récupérer toutes les langues, périodes et genres uniques
     cursor.execute("SELECT DISTINCT language FROM Allsongs")
     languages = sorted([row[0] for row in cursor.fetchall()])
 
     cursor.execute("SELECT DISTINCT period FROM Allsongs")
     periods = sorted([row[0] for row in cursor.fetchall()])
+
+    cursor.execute("SELECT DISTINCT genre FROM Allsongs")  # Nouvelle requête pour les genres
+    genres = sorted([row[0] for row in cursor.fetchall()])
 
     # Construire la requête avec filtres
     query = "SELECT * FROM Allsongs WHERE 1=1"
@@ -174,7 +178,11 @@ def choose_song():
         query += " AND period = ?"
         params.append(selected_period)
 
-    # Sécuriser les colonnes et l’ordre de tri (anti injection SQL)
+    if selected_genre != 'all':  # Filtre genre
+        query += " AND genre = ?"
+        params.append(selected_genre)
+
+    # Sécuriser les colonnes et l’ordre de tri (anti-injection SQL)
     valid_columns = ['title', 'artist', 'language', 'genre', 'period']
     if sort_by not in valid_columns:
         sort_by = 'artist'
@@ -198,12 +206,15 @@ def choose_song():
                            playlist=playlist,
                            selected_language=selected_language,
                            selected_period=selected_period,
+                           selected_genre=selected_genre,  # Passer le genre sélectionné au template
                            sort_by=sort_by,
                            sort_order=sort_order,
                            languages=languages,
                            periods=periods,
+                           genres=genres,  # Passer la liste des genres au template
                            table_title="Available Songs",
                            show_buttons=True)
+
                            
 @app.route('/current_playlist')
 def current_playlist():
