@@ -284,12 +284,13 @@ def add_to_playlist(song_id):
 
     conn.close()
 
-    # ✅ Redirection avec filtres conservés
-    return redirect(url_for('choose_song',
-                            sort_by=sort_by,
-                            sort_order=sort_order,
-                            language=language,
-                            period=period))
+# ✅ Redirection avec tous les filtres conservés
+return redirect(url_for('choose_song',
+                        sort_by=sort_by,
+                        sort_order=sort_order,
+                        language=language,
+                        period=period,
+                        genre=genre))
 
 @app.route('/test_flash')
 def test_flash():
