@@ -1,0 +1,16 @@
+Ajouter un tri par artiste
+
+Améliorer la lisibilité entre playlist et allsongs
+
+Mettre un commentaire pour orientation paysage
+
+Faire un bouton secret pour admin
+
+
+Changer "available songs" par "songs catalog"
+
+Mettre les critere alignes au dessus des titles
+
+Réduire le nombre de genre
+
+
