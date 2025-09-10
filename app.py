@@ -1,23 +1,20 @@
 """
-Karaokedesyl - Version 3.0
+Karaokedesyl - Version 4.0
 A Flask-based Karaoke Song Selection and Playlist Management System.
 """
 
-import dropbox
 import os
 import sqlite3
 import csv
 from datetime import datetime
 from flask import Flask, flash, session, render_template, request, redirect, url_for, send_from_directory, jsonify, Response, send_file
 from werkzeug.utils import secure_filename
-import qrcode
 from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 DATABASE = 'allsongs.db'
 EXPORT_DIR = 'export'
-DROPBOX_DIR = '/Users/sylvie/dropbox/songbook'
 ADMIN_PASSWORD = 'Syladm1'
 NGROK_URL = "https://b408-77-141-137-73.ngrok-free.app"  # Mets à jour si l'URL change
 # Définition de la clé secrète pour la gestion des sessions (y compris les messages flash)
@@ -111,20 +108,36 @@ def upload_songs():
 
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
-        # Supprimer toutes les chansons avant l'import
+        # On vide la table avant réimport
         cursor.execute("DELETE FROM Allsongs")
         conn.commit()
         
-        # Réimporter les chansons
         with open(filepath, newline='', encoding='utf-8') as csvfile:
-            csv_reader = csv.reader(csvfile)
-            next(csv_reader)  # Sauter l'en-tête CSV
-            cursor.executemany("INSERT INTO Allsongs (title, artist, language, genre, period) VALUES (?, ?, ?, ?, ?)", csv_reader)
+            # ✅ lecture avec séparateur point-virgule
+            csv_reader = csv.DictReader(csvfile, delimiter=';')
+
+            rows = []
+            for row in csv_reader:
+                title = row.get("Title")
+                artist = row.get("Artist")
+                language = row.get("Language")  # ton CSV contient bien "Language"
+                genre = row.get("genre") or row.get("Genre")  # tolérance sur minuscule
+                period = row.get("Period")
+
+                if title and artist:  # on évite les lignes vides ou incomplètes
+                    rows.append((title, artist, language, genre, period))
+
+            # ✅ insertion en une seule opération
+            cursor.executemany("""
+                INSERT INTO Allsongs (title, artist, language, genre, period)
+                VALUES (?, ?, ?, ?, ?)
+            """, rows)
         
         conn.commit()
     
     os.remove(filepath)
     return redirect(url_for('admin_dashboard'))
+    
     
 @app.route('/songs', methods=['GET'])
 def get_songs():
@@ -298,49 +311,6 @@ def test_flash():
     flash("Test message", "warning")
     return redirect(url_for('choose_song'))
 
-@app.route('/admin/export')
-def export_playlist():
-    # Connexion à la base de données
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT title, artist FROM Playlist")
-    playlist = cursor.fetchall()
-    conn.close()
-
-    # Création du nom de fichier avec horodatage
-    filename = f"Playlist_{datetime.now().strftime('%Y-%m-%d_%H-%M')}.lst"
-    local_file_path = os.path.join(EXPORT_DIR, filename)
-    dropbox_file_path = f"/songbook/{filename}"
-
-    # Extraire le nom de fichier sans l'extension .lst
-    filename_without_extension = filename.replace('.lst', '')
-
-    # S'assurer que le dossier 'export' existe
-    os.makedirs(EXPORT_DIR, exist_ok=True)
-
-    # Écriture locale du fichier
-    with open(local_file_path, 'w', encoding='utf-8') as f:
-        # Ajouter la première ligne avec le nom du fichier sans l'extension
-        f.write(f"{filename_without_extension}\n")
-        for title, artist in playlist:
-            f.write(f"{title} - {artist}\n")
-
-    # Envoi sur Dropbox
-    dropbox_token = os.environ.get("DROPBOX_TOKEN")
-    if not dropbox_token:
-        flash("Erreur : DROPBOX_TOKEN manquant. Vérifiez la configuration.", "danger")
-        return redirect(url_for('admin_dashboard'))
-
-    try:
-        dbx = dropbox.Dropbox(dropbox_token)
-        with open(local_file_path, 'rb') as f:
-            dbx.files_upload(f.read(), dropbox_file_path, mode=dropbox.files.WriteMode.overwrite)
-        flash("Playlist exportée avec succès ! Vous pouvez la retrouver dans Dropbox.", "success")
-    except Exception as e:
-        flash(f"Erreur lors de l'export Dropbox : {str(e)}", "danger")
-
-    return redirect(url_for('admin_dashboard'))
-
 @app.route('/admin/export_local_lst')
 def export_local_lst():
     # Connexion à la base de données
@@ -371,14 +341,6 @@ def reset_playlist():
     conn.commit()
     conn.close()
     return redirect(url_for('admin_dashboard'))
-
-@app.route('/qrcode')
-def generate_qr():
-    qr = qrcode.make(NGROK_URL)
-    img_io = BytesIO()
-    qr.save(img_io, 'PNG')
-    img_io.seek(0)
-    return send_file(img_io, mimetype='image/png')
 
 if __name__ == '__main__':
     init_db()
