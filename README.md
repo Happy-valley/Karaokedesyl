@@ -1,3 +1,3 @@
 Karaokedesyl
-app avec choose song avec select et tri et admin avec import export
-a faire render
+app oct 2025 avec choose song, admin et  import export
+a pousser dans render
