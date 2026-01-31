@@ -41,6 +41,15 @@
             background-color: #1976D2;
         }
 
+        .orientation-hint {
+            font-size: 14px;
+            color: #777;
+            margin-top: 4px;
+            margin-bottom: 15px;
+            text-align: left;
+            font-style: italic;
+        }
+
         .filter-form {
             margin-top: 20px;
             display: flex;
@@ -158,13 +167,17 @@
 <body>
 
     <!-- Bouton retour accueil -->
-    <a href="/" class="home-button" aria-label="Retour à l'accueil">🏠 Retour à l'accueil</a>
+   <a href="/" class="home-button" aria-label="Retour à l'accueil">
+    🏠 Retour à l'accueil
+    </a>
+
+    <p class="orientation-hint">Landscape format recommended</p>
 
     <!-- Message flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                {% if category == "warning" %}
+               {% if category == "warning" %}
                     <p class="flash-warning">{{ message }}</p>
                 {% endif %}
             {% endfor %}

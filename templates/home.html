@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Acoustic Karaoke</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,37 +13,44 @@
             margin: 0;
             padding: 0;
         }
+
         h1 {
             background-color: #4CAF50;
             color: white;
             padding: 20px 0;
             margin: 0;
         }
-        table {
-            margin: 50px auto;
-            border-collapse: collapse;
-            width: 50%;
+
+        .main-button {
+            margin-top: 60px;
         }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 12px;
-            text-align: center;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        td a {
+
+        .main-button a {
             text-decoration: none;
             background-color: #4CAF50;
             color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 18px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
             transition: background-color 0.3s ease;
         }
-        td a:hover {
+
+        .main-button a:hover {
             background-color: #45a049;
+        }
+
+        .admin-button a {
+            text-decoration: none;
+            background-color: #e0e0e0;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+
+        .admin-button a:hover {
+            background-color: #d5d5d5;
         }
 
         .footer-info {
@@ -52,43 +60,38 @@
         }
     </style>
 </head>
+
 <body>
+
     <h1>Welcome to Acoustic Karaoke!</h1>
 
-    <h2>Choose an Action</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Action</th>
-                <th>Link</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Choose Your Song</td>
-                <td><a href="/choose_song">Choose</a></td>
-            </tr>
-            <tr>
-                <td>Admin Dashboard</td>
-                <td><a href="/admin">Admin</a></td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- MAIN ACTION -->
+    <div class="main-button">
+        <a href="/choose_song">Enter songs catalog</a>
+    </div>
 
-<div style="margin-top: 30px;">
-    <img 
-        src="{{ url_for('static', filename='karaokedesyl_qr.png') }}" 
-        alt="QR Code Karaokedesyl"
-        style="max-width: 250px; width: 100%; height: auto;"
-    >
-    <p style="font-size: 0.9em; color: #555;">
-       Partager le Scan
-    </p>
-</div>
+    <!-- QR CODE -->
+    <div style="margin-top: 50px;">
+        <img
+            src="{{ url_for('static', filename='karaokedesyl_qr.png') }}"
+            alt="QR Code Karaokedesyl"
+            style="max-width: 250px; width: 100%; height: auto;"
+        >
+        <p style="font-size: 0.9em; color: #555;">
+            Partager le Scan
+        </p>
+    </div>
 
+    <!-- FOOTER / DATE -->
     <div class="footer-info">
         <p><strong>app.py path:</strong> {{ file_path }}</p>
         <p><strong>Last modified:</strong> {{ last_modified }}</p>
     </div>
+
+    <!-- ADMIN AFTER QR -->
+    <div class="admin-button" style="margin-top: 20px;">
+        <a href="/admin">Admin</a>
+    </div>
+
 </body>
 </html>
