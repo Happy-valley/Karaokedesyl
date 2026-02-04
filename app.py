@@ -1,5 +1,4 @@
 """
-Karaokedesyl - Version 4.0
 A Flask-based Karaoke Song Selection and Playlist Management System.
 """
 
@@ -13,7 +12,9 @@ from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
-DATABASE = 'allsongs.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, "allsongs.db")
+print("✅ DB path used:", DATABASE)
 EXPORT_DIR = 'export'
 ADMIN_PASSWORD = 'Syladm1'
 NGROK_URL = "https://b408-77-141-137-73.ngrok-free.app"  # Mets à jour si l'URL change
@@ -29,6 +30,7 @@ os.makedirs(EXPORT_DIR, exist_ok=True)
 # Database Initialization
 def init_db():
     conn = sqlite3.connect(DATABASE)
+    print("✅ init_db DB:", os.path.abspath(DATABASE))
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS Allsongs (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,6 +43,8 @@ def init_db():
                         id INTEGER PRIMARY KEY,
                         title TEXT UNIQUE,
                         artist TEXT)''')
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    print("✅ tables after create:", cursor.fetchall())
     conn.commit()
     conn.close()
 
@@ -98,46 +102,59 @@ def admin_dashboard():
 def upload_songs():
     if 'file' not in request.files:
         return redirect(url_for('admin_dashboard'))
-    
+
     file = request.files['file']
     if file.filename == '':
         return redirect(url_for('admin_dashboard'))
-    
+
     filepath = os.path.join(UPLOAD_FOLDER, secure_filename(file.filename))
     file.save(filepath)
 
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
-        # On vide la table avant réimport
+
+        # Vide la table avant réimport
         cursor.execute("DELETE FROM Allsongs")
         conn.commit()
-        
-        with open(filepath, newline='', encoding='utf-8') as csvfile:
-            # ✅ lecture avec séparateur point-virgule
-            csv_reader = csv.DictReader(csvfile, delimiter=';')
+
+        # ✅ Ouvre le CSV (utf-8-sig enlève un éventuel BOM Excel)
+        with open(filepath, newline='', encoding='utf-8-sig') as csvfile:
+            csv_reader = csv.DictReader(csvfile, delimiter=';')  # ton CSV est en ;
+
+            # ✅ DEBUG : ici seulement, csv_reader existe
+            print("✅ CSV headers:", csv_reader.fieldnames)
 
             rows = []
+            rejected = 0
+
             for row in csv_reader:
-                title = row.get("Title")
-                artist = row.get("Artist")
-                language = row.get("Language")  # ton CSV contient bien "Language"
-                genre = row.get("genre") or row.get("Genre")  # tolérance sur minuscule
-                period = row.get("Period")
+                title = (row.get("Title") or "").strip()
+                artist = (row.get("Artist") or "").strip()
+                language = (row.get("Language") or "").strip()
+                genre = (row.get("genre") or row.get("Genre") or "").strip()
+                period = (row.get("Period") or "").strip()
 
-                if title and artist:  # on évite les lignes vides ou incomplètes
+                if title and artist:
                     rows.append((title, artist, language, genre, period))
+                else:
+                    rejected += 1
 
-            # ✅ insertion en une seule opération
+            print("✅ rows prepared for insert:", len(rows))
+            print("⚠️ rows rejected:", rejected)
+            print("✅ first row example:", rows[0] if rows else "NO ROWS")
+
             cursor.executemany("""
                 INSERT INTO Allsongs (title, artist, language, genre, period)
                 VALUES (?, ?, ?, ?, ?)
             """, rows)
-        
-        conn.commit()
-    
+
+            conn.commit()
+
+            cursor.execute("SELECT COUNT(*) FROM Allsongs")
+            print("✅ Allsongs count after import:", cursor.fetchone()[0])
+
     os.remove(filepath)
     return redirect(url_for('admin_dashboard'))
-    
     
 @app.route('/songs', methods=['GET'])
 def get_songs():
