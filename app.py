@@ -114,6 +114,11 @@ def upload_songs():
         cursor = conn.cursor()
 
         # Vide la table avant réimport
+        print("✅ upload_songs DB:", os.path.abspath(DATABASE))
+        init_db()  # ✅ s'assure que les tables existent au moment de l'import
+
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        print("✅ tables seen in upload_songs:", cursor.fetchall())
         cursor.execute("DELETE FROM Allsongs")
         conn.commit()
 
